@@ -16,6 +16,8 @@ from utils.pdf_export import generate_report_pdf, generate_text_report
 
 def render():
     """영상 분석기 탭을 렌더링합니다."""
+    from utils.analytics import log_event
+    log_event("page_view", "video_analyzer")
 
     st.markdown('<p class="section-header">유튜브 영상 분석</p>', unsafe_allow_html=True)
 

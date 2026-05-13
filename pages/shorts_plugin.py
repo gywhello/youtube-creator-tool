@@ -20,6 +20,8 @@ DEFAULT_TONE = "담백한 비평, 빠른 호흡, 과장 없는 온라인 이슈 
 
 
 def render():
+    from utils.analytics import log_event
+    log_event("page_view", "shorts_plugin")
     st.markdown('<p class="section-header">핫이슈 검색기</p>', unsafe_allow_html=True)
 
     st.caption("디시인사이드, 커뮤니티 최근 이슈, Google Trends, X API를 모아 9:16 쇼츠용 타임라인과 자막을 만듭니다.")

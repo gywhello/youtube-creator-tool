@@ -23,6 +23,8 @@ def _esc(text: str) -> str:
 
 
 def render():
+    from utils.analytics import log_event
+    log_event("page_view", "keyword_search")
     st.markdown('<p class="section-header">키워드 조회수 순위</p>', unsafe_allow_html=True)
 
     col_input, col_btn = st.columns([4, 1])

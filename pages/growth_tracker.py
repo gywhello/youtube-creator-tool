@@ -1000,6 +1000,8 @@ def _render_channel_card(ch: dict, rank: int):
 
 def render():
     """급성장 채널 트래커 탭을 렌더링합니다."""
+    from utils.analytics import log_event
+    log_event("page_view", "growth_tracker")
 
     preset = st.radio(
         "채널 규모",

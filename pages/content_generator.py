@@ -16,6 +16,8 @@ DEFAULT_CONCEPTS = ""
 
 def render():
     """콘텐츠 생성기 탭을 렌더링합니다."""
+    from utils.analytics import log_event
+    log_event("page_view", "content_generator")
 
     # ── 채널 컨셉 입력 ──
     st.markdown('<p class="section-header">채널 컨셉 설정</p>', unsafe_allow_html=True)

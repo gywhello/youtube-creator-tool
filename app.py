@@ -7,11 +7,11 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-# 환경변수 로드
+# Streamlit secrets fallback (page_config 전에 로드해야 query_params 사용 가능)
 load_dotenv()
-
-# Streamlit secrets fallback
-for key in ["GEMINI_API_KEY", "YOUTUBE_API_KEY"]:
+for key in ["GEMINI_API_KEY", "YOUTUBE_API_KEY", "ADMIN_PASSWORD",
+            "SUPABASE_URL", "SUPABASE_ANON_KEY",
+            "AFFILIATE_BANNER_URL", "AFFILIATE_BANNER_IMG"]:
     if not os.environ.get(key):
         try:
             os.environ[key] = st.secrets[key]
@@ -25,6 +25,16 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+# ── 어드민 라우팅 (URL에 ?admin=1 붙이면 대시보드로 이동) ──
+if st.query_params.get("admin") == "1":
+    from pages.admin_dashboard import render as render_admin
+    render_admin()
+    st.stop()
+
+# ── 방문자 추적 ──
+from utils.analytics import log_visit
+log_visit()
 
 # 커스텀 CSS 로드
 css_path = os.path.join(os.path.dirname(__file__), "styles", "custom.css")
