@@ -54,6 +54,20 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Google Analytics 4
+st.markdown(
+    """
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DRBL5091PY"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-DRBL5091PY');
+    </script>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ── 헤더 ──
 st.markdown(
     '<div class="app-title">유튜브 크리에이터 도구</div>'
