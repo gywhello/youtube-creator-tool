@@ -50,7 +50,7 @@ st.markdown(
 
 # Google Search Console 소유권 확인
 st.markdown(
-    '<meta name="google-site-verification" content="google880559697f6b400d" />',
+    '<meta name="google-site-verification" content="_Xcx4kSrTzJsEgH-nRvi-PBAa5sG8ROqO-Xkpghv-74" />',
     unsafe_allow_html=True,
 )
 
