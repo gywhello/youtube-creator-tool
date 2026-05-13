@@ -11,7 +11,7 @@ from utils.gemini_client import (
     split_subtitles,
 )
 
-DEFAULT_CONCEPTS = "고독, 인간 심리, 감성 독백, 새벽 감성, 현실 비판, 일본 감성"
+DEFAULT_CONCEPTS = ""
 
 
 def render():

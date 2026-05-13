@@ -277,13 +277,13 @@ def _fetch_ilbe_list(url: str) -> list[dict]:
         items.append(
             TrendItem(
                 title=title,
-                summary=f"일베저장소 공개 인기/베스트 게시글: {title}",
+                summary=f"커뮤니티 최근 인기 게시글: {title}",
                 source=url,
-                source_label="일베저장소",
+                source_label="커뮤니티",
                 url=post_url,
                 time=_guess_time(cells) or "최근",
                 traffic=metrics,
-                platform="ilbe",
+                platform="community",
             ).to_dict()
         )
         if len(items) >= 20:

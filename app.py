@@ -84,7 +84,7 @@ from utils.ads import render_banner
 render_banner()
 
 # ── 탭 네비게이션 ──
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["⚡ 콘텐츠 생성기", "🎞️ 쇼츠 플러그인", "📊 영상 분석기", "🚀 급성장 채널", "🔍 키워드 순위"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["⚡ 콘텐츠 생성기", "🔥 핫이슈 검색기", "📊 영상 분석기", "🚀 급성장 채널", "🔍 키워드 순위"])
 
 with tab1:
     from pages.content_generator import render as render_content

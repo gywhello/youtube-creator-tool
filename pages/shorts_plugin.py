@@ -20,14 +20,14 @@ DEFAULT_TONE = "담백한 비평, 빠른 호흡, 과장 없는 온라인 이슈 
 
 
 def render():
-    st.markdown('<p class="section-header">핫이슈 쇼츠 자동 플러그인</p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-header">핫이슈 검색기</p>', unsafe_allow_html=True)
 
-    st.caption("디시/일베 공개 목록, Google Trends, X API를 모아 9:16 쇼츠용 타임라인과 자막을 만듭니다.")
+    st.caption("디시인사이드, 커뮤니티 최근 이슈, Google Trends, X API를 모아 9:16 쇼츠용 타임라인과 자막을 만듭니다.")
 
     col_left, col_right = st.columns([1, 1])
     with col_left:
         include_dcinside = st.checkbox("디시인사이드 최근 이슈", value=True)
-        include_ilbe = st.checkbox("일베저장소 최근 이슈", value=True)
+        include_ilbe = st.checkbox("커뮤니티 최근 이슈", value=True)
         include_google = st.checkbox("Google Trends 최근 이슈", value=True)
         include_x = st.checkbox("X/Twitter 최근 이슈", value=True)
     with col_right:
