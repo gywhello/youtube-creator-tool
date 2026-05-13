@@ -657,3 +657,172 @@ h1, h2, h3, .section-header {
     background: var(--bg-elevated);
     border-radius: 4px;
 }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+
+    /* 컨테이너 패딩 축소 */
+    .block-container {
+        padding-top: 3.8rem !important;
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+        padding-bottom: 6rem !important;
+        max-width: 100% !important;
+    }
+
+    /* 앱 타이틀 */
+    .app-title {
+        font-size: 1.35rem !important;
+    }
+    .app-subtitle {
+        font-size: 0.55rem !important;
+    }
+
+    /* 탭 - 가로 스크롤 */
+    .stTabs [data-baseweb="tab-list"] {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex-wrap: nowrap !important;
+        scrollbar-width: none !important;
+        gap: 5px !important;
+        margin-bottom: 14px !important;
+        padding-bottom: 4px !important;
+    }
+    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
+        display: none !important;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 34px !important;
+        padding: 0 12px !important;
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* 섹션 헤더 */
+    .section-header {
+        font-size: 1.2rem !important;
+    }
+
+    /* 뉴스 카드 */
+    .news-card {
+        padding: 14px !important;
+    }
+    .news-card-title {
+        font-size: 0.95rem !important;
+    }
+
+    /* 성장 카드 */
+    .growth-card {
+        padding: 10px 12px !important;
+    }
+    .growth-stats-grid {
+        gap: 14px !important;
+    }
+    .growth-video-title {
+        max-width: 200px !important;
+    }
+    .discovery-title {
+        font-size: 1.3rem !important;
+    }
+    .discovery-hero {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    /* 버튼 터치 영역 */
+    .stButton > button {
+        min-height: 44px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* 입력 필드 */
+    .stTextInput input,
+    .stTextArea textarea {
+        font-size: 16px !important; /* iOS 자동 줌 방지 */
+    }
+
+    /* 컬럼 간격 */
+    [data-testid="stHorizontalBlock"] {
+        gap: 6px !important;
+    }
+
+    /* 익스팬더 */
+    [data-testid="stExpander"] {
+        border-radius: 12px !important;
+    }
+
+    /* 하단 고정 광고 배너 */
+    .sticky-ad-footer {
+        padding: 4px 0 2px !important;
+    }
+    .sticky-ad-footer img {
+        height: 44px !important;
+    }
+
+    /* 메트릭 카드 */
+    [data-testid="stMetric"] {
+        padding: 10px !important;
+    }
+
+    /* 차트 */
+    [data-testid="stVegaLiteChart"] {
+        overflow-x: auto !important;
+    }
+
+    /* 데이터프레임 */
+    [data-testid="stDataFrame"] {
+        overflow-x: auto !important;
+        font-size: 0.78rem !important;
+    }
+
+    /* 라디오 버튼 (카테고리 필터) */
+    [data-testid="stRadio"] > div {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex-wrap: nowrap !important;
+        scrollbar-width: none !important;
+        padding-bottom: 4px !important;
+    }
+    [data-testid="stRadio"] > div::-webkit-scrollbar {
+        display: none !important;
+    }
+    [data-testid="stRadio"] label {
+        white-space: nowrap !important;
+        font-size: 0.78rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .block-container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .app-title {
+        font-size: 1.15rem !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 30px !important;
+        padding: 0 9px !important;
+        font-size: 0.7rem !important;
+    }
+
+    .growth-video-title {
+        max-width: 140px !important;
+    }
+
+    .news-card-title {
+        font-size: 0.88rem !important;
+    }
+
+    /* 커뮤니티 카드 아바타 크기 축소 */
+    .comm-avatar {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 14px !important;
+    }
+}
