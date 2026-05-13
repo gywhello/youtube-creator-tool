@@ -55,17 +55,28 @@ st.markdown(
 )
 
 # Google Analytics 4
-st.markdown(
+import streamlit.components.v1 as _components
+_components.html(
     """
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DRBL5091PY"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-DRBL5091PY');
+      (function() {
+        var s1 = parent.document.createElement('script');
+        s1.async = true;
+        s1.src = 'https://www.googletagmanager.com/gtag/js?id=G-DRBL5091PY';
+        parent.document.head.appendChild(s1);
+
+        var s2 = parent.document.createElement('script');
+        s2.innerHTML = [
+          'window.dataLayer = window.dataLayer || [];',
+          'function gtag(){dataLayer.push(arguments);}',
+          'gtag("js", new Date());',
+          'gtag("config", "G-DRBL5091PY");'
+        ].join('\\n');
+        parent.document.head.appendChild(s2);
+      })();
     </script>
     """,
-    unsafe_allow_html=True,
+    height=0,
 )
 
 # ── 헤더 ──
