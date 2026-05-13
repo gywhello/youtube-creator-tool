@@ -10,16 +10,15 @@ from datetime import datetime, timezone
 import requests
 import streamlit as st
 
-_TABLE = "community_posts"
+_TABLE  = "community_posts"
 _BUCKET = "community-media"
-_CATEGORIES = ["전체", "팁 공유", "채널 공유", "질문", "성공 사례", "자유"]
-_WRITE_CATS = _CATEGORIES[1:]
 _AVATAR_COLORS = [
     "#5856d6", "#a78bfa", "#0a84ff", "#32d74b",
     "#ff9f0a", "#ff6b6b", "#bf5af2", "#30d158",
 ]
 _MAX_IMG_MB = 5
 _MAX_VID_MB = 50
+_CATEGORIES = ["전체", "팁 공유", "채널 공유", "질문", "성공 사례", "자유"]
 
 
 # ── helpers ────────────────────────────────────────────────────────────────
@@ -36,7 +35,7 @@ def _hdr(key: str, extra: dict | None = None) -> dict:
     return h
 
 
-def _avatar_color(text: str) -> str:
+def _color(text: str) -> str:
     return _AVATAR_COLORS[abs(hash(text or "익")) % len(_AVATAR_COLORS)]
 
 
@@ -49,31 +48,17 @@ def _rel_time(iso: str) -> str:
     if not iso:
         return "방금"
     try:
-        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        dt   = datetime.fromisoformat(iso.replace("Z", "+00:00"))
         diff = int((datetime.now(timezone.utc) - dt).total_seconds())
-        if diff < 60:
-            return "방금"
-        if diff < 3600:
-            return f"{diff // 60}분 전"
-        if diff < 86400:
-            return f"{diff // 3600}시간 전"
+        if diff < 60:    return "방금"
+        if diff < 3600:  return f"{diff // 60}분 전"
+        if diff < 86400: return f"{diff // 3600}시간 전"
         return f"{diff // 86400}일 전"
     except Exception:
         return iso[:10]
 
 
-def _avatar_html(nick: str, size: int = 42) -> str:
-    color = _avatar_color(nick)
-    letter = _initial(nick)
-    return (
-        f'<div style="width:{size}px;height:{size}px;border-radius:50%;'
-        f'background:{color};display:flex;align-items:center;justify-content:center;'
-        f'font-weight:800;font-size:{size // 2.5:.0f}px;color:#fff;'
-        f'flex-shrink:0;">{letter}</div>'
-    )
-
-
-# ── Supabase calls ─────────────────────────────────────────────────────────
+# ── Supabase ───────────────────────────────────────────────────────────────
 
 def _fetch_posts(category: str) -> list[dict]:
     url, key = _cfg()
@@ -91,19 +76,19 @@ def _fetch_posts(category: str) -> list[dict]:
         return []
 
 
-def _create_post(nick: str, cat: str, title: str, content: str,
+def _create_post(nick: str, content: str,
                  media_url: str = "", media_type: str = "") -> bool:
     url, key = _cfg()
     if not url or not key:
         return False
     payload: dict = {
         "nickname": nick.strip() or "익명",
-        "category": cat,
-        "title": title.strip(),
+        "category": "자유",
+        "title": content.strip()[:60],
         "content": content.strip(),
     }
     if media_url:
-        payload["media_url"] = media_url
+        payload["media_url"]  = media_url
         payload["media_type"] = media_type
     try:
         r = requests.post(f"{url}/rest/v1/{_TABLE}",
@@ -154,10 +139,27 @@ def render() -> None:
     from utils.analytics import log_event
     log_event("page_view", "community")
 
+    # 하트 버튼 스타일 - 테두리·배경 제거
+    st.markdown("""
+    <style>
+    [data-testid="stBaseButton-secondary"] {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 2px 6px !important;
+        min-height: 0 !important;
+        color: #ff375f !important;
+        font-size: 0.95rem !important;
+    }
+    [data-testid="stBaseButton-secondary"]:hover {
+        background: rgba(255,55,95,0.08) !important;
+        border-radius: 8px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.markdown(
-        '<p class="section-header" style="margin-bottom:4px;">커뮤니티</p>'
-        '<p style="color:#636366;font-size:0.78rem;margin-bottom:1rem;">'
-        '유튜버들끼리 팁·채널·성공 사례를 자유롭게 공유해요</p>',
+        '<p class="section-header" style="margin-bottom:4px;">커뮤니티</p>',
         unsafe_allow_html=True,
     )
 
@@ -168,16 +170,17 @@ def render() -> None:
 
     _render_compose()
 
+    # 카테고리 필터
     cat = st.radio("", _CATEGORIES, horizontal=True, key="comm_cat",
                    label_visibility="collapsed")
 
-    st.markdown('<div style="height:8px;"></div>', unsafe_allow_html=True)
-
     posts = _fetch_posts(cat)
+    st.markdown('<div style="height:6px;"></div>', unsafe_allow_html=True)
+
     if not posts:
         st.markdown(
             '<div style="text-align:center;color:#636366;padding:4rem 0;'
-            'font-size:0.88rem;">아직 게시글이 없어요.<br>첫 번째 글을 남겨보세요! 🧵</div>',
+            'font-size:0.88rem;">아직 게시글이 없어요. 첫 번째 스레드를 시작해보세요 🧵</div>',
             unsafe_allow_html=True,
         )
         return
@@ -190,136 +193,123 @@ def _render_compose() -> None:
     remaining = max(0, int(30 - (time.time() - st.session_state.get("comm_last", 0))))
 
     nick_val = st.session_state.get("comm_nick", "")
-    color = _avatar_color(nick_val or "나")
-    letter = _initial(nick_val or "나")
+    bg_color = _color(nick_val or "나")
+    letter   = _initial(nick_val or "나")
 
-    st.markdown(
-        f'<div style="display:flex;gap:12px;align-items:flex-start;'
-        f'background:#1c1c1e;border:1px solid #3a3a3c;border-radius:16px;'
-        f'padding:16px 18px;margin-bottom:16px;">'
-        f'<div style="width:42px;height:42px;border-radius:50%;background:{color};'
-        f'display:flex;align-items:center;justify-content:center;'
-        f'font-weight:800;font-size:17px;color:#fff;flex-shrink:0;'
-        f'margin-top:4px;">{letter}</div>'
-        f'<div style="flex:1;min-width:0;">'
-        f'<div style="color:#636366;font-size:0.82rem;margin-bottom:8px;">'
-        f'{"⏳ " + str(remaining) + "초 후 작성 가능" if remaining else "스레드 시작하기..."}'
-        f'</div></div></div>',
-        unsafe_allow_html=True,
-    )
-
-    if remaining:
-        return
-
-    with st.expander("✏️ 글쓰기", expanded=False):
-        c1, c2 = st.columns([2, 1])
-        with c1:
-            nick = st.text_input("닉네임", placeholder="익명", max_chars=20,
-                                 key="comm_nick", label_visibility="visible")
-        with c2:
-            cat = st.selectbox("카테고리", _WRITE_CATS, key="comm_wcat")
-
-        title = st.text_input("제목 *", max_chars=80, key="comm_title")
-        content = st.text_area("내용 *", max_chars=1500, height=100,
-                               placeholder="팁, 질문, 성공 경험 등 자유롭게 공유해주세요.",
-                               key="comm_content")
-
-        mc1, mc2 = st.columns(2)
-        with mc1:
-            img_file = st.file_uploader("🖼️ 이미지 첨부",
-                                        type=["jpg", "jpeg", "png", "gif", "webp"],
-                                        key="comm_img")
-        with mc2:
-            vid_file = st.file_uploader("🎬 영상 첨부",
-                                        type=["mp4", "mov", "webm"],
-                                        key="comm_vid")
-
-        if img_file:
-            st.image(img_file, width=260)
-        if vid_file:
-            st.video(vid_file)
-
-        if st.button("게시하기 🧵", type="primary", key="comm_submit"):
-            if not title.strip() or not content.strip():
-                st.error("제목과 내용을 입력해주세요.")
-                return
-
-            media_url, media_type = "", ""
-
-            if img_file:
-                if len(img_file.getvalue()) > _MAX_IMG_MB * 1024 * 1024:
-                    st.error(f"이미지는 {_MAX_IMG_MB}MB 이하만 가능합니다.")
-                    return
-                ext = img_file.name.rsplit(".", 1)[-1]
-                with st.spinner("이미지 업로드 중..."):
-                    media_url = _upload_file(img_file.getvalue(),
-                                             f"{uuid.uuid4().hex}.{ext}",
-                                             img_file.type) or ""
-                media_type = "image"
-
-            elif vid_file:
-                if len(vid_file.getvalue()) > _MAX_VID_MB * 1024 * 1024:
-                    st.error(f"영상은 {_MAX_VID_MB}MB 이하만 가능합니다.")
-                    return
-                ext = vid_file.name.rsplit(".", 1)[-1]
-                with st.spinner("영상 업로드 중..."):
-                    media_url = _upload_file(vid_file.getvalue(),
-                                             f"{uuid.uuid4().hex}.{ext}",
-                                             vid_file.type) or ""
-                media_type = "video"
-
-            if _create_post(nick, cat, title, content, media_url, media_type):
-                st.session_state.comm_last = time.time()
-                for k in ["comm_nick", "comm_title", "comm_content",
-                           "comm_img", "comm_vid"]:
-                    st.session_state.pop(k, None)
-                st.success("게시되었습니다! 🎉")
-                st.rerun()
-            else:
-                st.error("게시 실패. 다시 시도해주세요.")
-
-
-def _render_card(post: dict) -> None:
-    post_id = post.get("id", 0)
-    liked_key = f"comm_liked_{post_id}"
-    already_liked = st.session_state.get(liked_key, False)
-
-    nick_raw = post.get("nickname", "익명") or "익명"
-    cat      = html.escape(post.get("category", ""))
-    nick     = html.escape(nick_raw)
-    title    = html.escape(post.get("title", ""))
-    body     = html.escape(post.get("content", "")).replace("\n", "<br>")
-    likes    = post.get("likes", 0)
-    media_url  = post.get("media_url") or ""
-    media_type = post.get("media_type") or ""
-    t_label  = _rel_time(post.get("created_at", ""))
-    color    = _avatar_color(nick_raw)
-    letter   = _initial(nick_raw)
-
-    col_av, col_body = st.columns([1, 11])
+    col_av, col_form = st.columns([1, 12])
 
     with col_av:
         st.markdown(
-            f'<div style="width:42px;height:42px;border-radius:50%;'
-            f'background:{color};display:flex;align-items:center;'
-            f'justify-content:center;font-weight:800;font-size:17px;'
+            f'<div style="width:44px;height:44px;border-radius:50%;'
+            f'background:{bg_color};display:flex;align-items:center;'
+            f'justify-content:center;font-weight:800;font-size:18px;'
+            f'color:#fff;margin-top:10px;">{letter}</div>',
+            unsafe_allow_html=True,
+        )
+
+    with col_form:
+        if remaining:
+            st.markdown(
+                f'<div style="color:#636366;font-size:0.82rem;padding:14px 0;">'
+                f'⏳ {remaining}초 후 다시 작성 가능합니다.</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            nick    = st.text_input("", placeholder="닉네임 (선택)",
+                                    max_chars=20, key="comm_nick",
+                                    label_visibility="collapsed")
+            content = st.text_area("", placeholder="무슨 생각을 하고 있나요?",
+                                   max_chars=1500, height=90, key="comm_content",
+                                   label_visibility="collapsed")
+
+            media_file = st.file_uploader(
+                "📎 사진 또는 영상 드래그앤드롭",
+                type=["jpg", "jpeg", "png", "gif", "webp", "mp4", "mov", "webm"],
+                key="comm_media",
+                label_visibility="visible",
+            )
+
+            if media_file:
+                if media_file.type.startswith("image"):
+                    st.image(media_file, width=280)
+                else:
+                    st.video(media_file)
+
+            _, btn_col = st.columns([8, 2])
+            with btn_col:
+                if st.button("게시", type="primary", key="comm_submit",
+                             use_container_width=True):
+                    if not content.strip():
+                        st.error("내용을 입력해주세요.")
+                        return
+
+                    media_url, media_type = "", ""
+
+                    if media_file:
+                        is_img = media_file.type.startswith("image")
+                        limit  = _MAX_IMG_MB if is_img else _MAX_VID_MB
+                        if len(media_file.getvalue()) > limit * 1024 * 1024:
+                            st.error(f"{'이미지' if is_img else '영상'}는 {limit}MB 이하만 가능합니다.")
+                            return
+                        ext = media_file.name.rsplit(".", 1)[-1]
+                        with st.spinner("업로드 중..."):
+                            media_url  = _upload_file(
+                                media_file.getvalue(),
+                                f"{uuid.uuid4().hex}.{ext}",
+                                media_file.type,
+                            ) or ""
+                        media_type = "image" if is_img else "video"
+
+                    if _create_post(nick, content, media_url, media_type):
+                        st.session_state.comm_last = time.time()
+                        for k in ["comm_nick", "comm_content", "comm_media"]:
+                            st.session_state.pop(k, None)
+                        st.success("게시되었습니다! 🎉")
+                        st.rerun()
+                    else:
+                        st.error("게시 실패. 다시 시도해주세요.")
+
+    st.markdown(
+        '<hr style="border:none;border-top:1px solid #3a3a3c;margin:14px 0 16px;">',
+        unsafe_allow_html=True,
+    )
+
+
+def _render_card(post: dict) -> None:
+    post_id    = post.get("id", 0)
+    liked_key  = f"comm_liked_{post_id}"
+    already_liked = st.session_state.get(liked_key, False)
+
+    nick_raw   = post.get("nickname", "익명") or "익명"
+    nick       = html.escape(nick_raw)
+    body       = html.escape(post.get("content", "")).replace("\n", "<br>")
+    likes      = post.get("likes", 0)
+    media_url  = post.get("media_url") or ""
+    media_type = post.get("media_type") or ""
+    t_label    = _rel_time(post.get("created_at", ""))
+    bg_color   = _color(nick_raw)
+    letter     = _initial(nick_raw)
+
+    col_av, col_body = st.columns([1, 12])
+
+    with col_av:
+        st.markdown(
+            f'<div style="width:44px;height:44px;border-radius:50%;'
+            f'background:{bg_color};display:flex;align-items:center;'
+            f'justify-content:center;font-weight:800;font-size:18px;'
             f'color:#fff;margin-top:6px;">{letter}</div>',
             unsafe_allow_html=True,
         )
 
     with col_body:
         st.markdown(
-            f'<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">'
-            f'<span style="font-weight:700;font-size:0.88rem;color:#e8e8ed;">{nick}</span>'
-            f'<span style="color:#48484a;font-size:0.72rem;">·</span>'
-            f'<span style="color:#636366;font-size:0.72rem;">{t_label}</span>'
-            f'<span style="margin-left:auto;background:#2c2c2e;color:#a78bfa;'
-            f'font-size:0.62rem;font-weight:700;padding:1px 8px;'
-            f'border-radius:20px;">{cat}</span>'
+            f'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">'
+            f'<span style="font-weight:700;font-size:0.9rem;color:#e8e8ed;">{nick}</span>'
+            f'<span style="color:#48484a;">·</span>'
+            f'<span style="color:#636366;font-size:0.75rem;">{t_label}</span>'
             f'</div>'
-            f'<div style="font-weight:700;font-size:0.9rem;color:#e8e8ed;'
-            f'margin-bottom:4px;">{title}</div>'
-            f'<div style="color:#aeaeb2;font-size:0.8rem;line-height:1.65;">{body}</div>',
+            f'<div style="color:#e8e8ed;font-size:0.85rem;line-height:1.7;'
+            f'margin-bottom:8px;">{body}</div>',
             unsafe_allow_html=True,
         )
 
@@ -329,14 +319,17 @@ def _render_card(post: dict) -> None:
             elif media_type == "video":
                 st.video(media_url)
 
-        heart = "❤️" if already_liked else "🤍"
-        if st.button(f"{heart}  {likes}", key=f"comm_like_{post_id}"):
-            if not already_liked:
-                if _increment_likes(post_id, likes):
-                    st.session_state[liked_key] = True
-                    st.rerun()
+        # 하트 버튼 - 우측 하단
+        _, heart_col = st.columns([10, 2])
+        with heart_col:
+            heart = "❤️" if already_liked else "🤍"
+            if st.button(f"{heart} {likes}", key=f"comm_like_{post_id}"):
+                if not already_liked:
+                    if _increment_likes(post_id, likes):
+                        st.session_state[liked_key] = True
+                        st.rerun()
 
     st.markdown(
-        '<hr style="border:none;border-top:1px solid #2c2c2e;margin:10px 0 14px;">',
+        '<hr style="border:none;border-top:1px solid #2c2c2e;margin:8px 0 16px;">',
         unsafe_allow_html=True,
     )
