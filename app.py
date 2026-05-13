@@ -121,7 +121,7 @@ if not gemini_key or not youtube_key:
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 # ── 탭 네비게이션 ──
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["⚡ 콘텐츠 생성기", "🔥 핫이슈 검색기", "📊 영상 분석기", "🚀 급성장 채널", "🔍 키워드 순위"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["⚡ 콘텐츠 생성기", "🔥 핫이슈 검색기", "📊 영상 분석기", "🚀 급성장 채널", "🔍 키워드 순위", "💬 커뮤니티"])
 
 with tab1:
     from pages.content_generator import render as render_content
@@ -142,6 +142,10 @@ with tab4:
 with tab5:
     from pages.keyword_search import render as render_keyword_search
     render_keyword_search()
+
+with tab6:
+    from pages.community import render as render_community
+    render_community()
 
 # ── 하단 고정 배너 광고 ──
 from utils.ads import render_sticky_footer
