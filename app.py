@@ -48,6 +48,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Google Search Console 소유권 확인
+st.markdown(
+    '<meta name="google-site-verification" content="google880559697f6b400d" />',
+    unsafe_allow_html=True,
+)
+
 # ── 헤더 ──
 st.markdown(
     '<div class="app-title">유튜브 크리에이터 도구</div>'
